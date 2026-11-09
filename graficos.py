@@ -248,7 +248,7 @@ def tarjeta_png(ruta, texto, subtexto=None, muestras=None):
         tam -= 6
     alto_l = int(tam * 1.05)
     alto_total = alto_l * len(lineas) + (90 if subtexto else 0) + (190 if muestras else 0)
-    y = (H_ - alto_total) // 2 - 60
+    y = (H_ - alto_total) // 2 - 190   # deja aire para los subtítulos
     for l in lineas:
         x = (W_ - medir(l, f)) / 2
         rojo = False

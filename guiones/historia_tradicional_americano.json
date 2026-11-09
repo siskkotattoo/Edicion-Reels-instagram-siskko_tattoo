@@ -34,7 +34,8 @@
         0.5,
         0.5
       ],
-      "zoom": 0.1
+      "zoom": 0.1,
+      "color": false
     },
     {
       "voz": "Así nació el tatuaje tradicional americano.",
@@ -61,39 +62,42 @@
     {
       "voz": "Tanto, que sus papeles oficiales describían cada tatuaje para poder identificarlos.",
       "texto": "Tanto, que sus papeles oficiales describían cada tatuaje para poder identificarlos.",
-      "archivo": "../salida/historia_tradicional_americano/archivo/certificados_marinos.jpg",
-      "zoom": 0.08,
-      "rotulo": "Certificados de marinos de EE. UU."
+      "archivo": "../salida/historia_tradicional_americano/archivo/1889_profesor_tatuaje.jpg",
+      "foco": [
+        0.55,
+        0.12
+      ],
+      "acercar": 1.6,
+      "zoom": -0.08
     },
     {
       "voz": "Según la tradición, una golondrina por cada cinco mil millas navegadas.",
       "texto": "Según la tradición, una golondrina por cada 5.000 millas navegadas.",
       "tarjeta": "*5.000*|millas",
-      "subtexto": "= una golondrina"
+      "subtexto": "= una golondrina",
+      "fondo": "../salida/historia_tradicional_americano/archivo/hold_fast_golondrinas.jpg"
     },
     {
       "voz": "Y un ancla, por cruzar el Atlántico.",
       "texto": "Y un ancla, por cruzar el Atlántico.",
       "tarjeta": "*Ancla*",
       "subtexto": "= cruzar el Atlántico",
-      "transicion": "flash"
+      "transicion": "flash",
+      "fondo": "../salida/historia_tradicional_americano/archivo/1944_uss_new_jersey.jpg"
     },
     {
       "voz": "En mil ochocientos noventa y uno, Samuel O Raili patentó en Nueva York la primera máquina eléctrica de tatuar del país.",
       "texto": "En 1891, Samuel O'Reilly patentó en Nueva York la primera máquina eléctrica de tatuar del país.",
-      "archivo": "../salida/historia_tradicional_americano/archivo/1891_patente_oreilly.jpg",
-      "foco": [
-        0.5,
-        0.4
-      ],
-      "zoom": 0.12,
-      "rotulo": "Patente nº 464.801 · 1891"
+      "tarjeta": "*1891*|patente",
+      "subtexto": "nº 464.801 · S. F. O'Reilly · Nueva York",
+      "fondo": "../salida/historia_tradicional_americano/archivo/1889_profesor_tatuaje.jpg"
     },
     {
       "voz": "Décadas después, en Honolulu, Sailor Jerry llevó el estilo a otro nivel.",
       "texto": "Décadas después, en Honolulu, Sailor Jerry llevó el estilo a otro nivel.",
       "tarjeta": "Sailor|*Jerry*",
-      "subtexto": "Honolulu · Hotel Street"
+      "subtexto": "Honolulu · Hotel Street",
+      "fondo": "../salida/historia_tradicional_americano/archivo/1958_tattoo_artist.jpg"
     },
     {
       "voz": "Líneas negras gruesas, sombras sólidas,",
@@ -135,7 +139,8 @@
       "texto": "La regla del tradicional sigue viva: bold will hold. Lo que es fuerte, perdura.",
       "tarjeta": "*Bold*|will|*hold*",
       "subtexto": "lo que es fuerte, perdura",
-      "transicion": "flash"
+      "transicion": "flash",
+      "fondo": "../salida/historia_tradicional_americano/archivo/1940_caravana_tattoo_rose.jpg"
     },
     {
       "voz": "Por eso un tradicional se lee a diez metros, y aguanta toda una vida.",
@@ -164,8 +169,6 @@
     "Farm Security Administration, caravana de tatuador junto a Fort Beauregard, Luisiana (1940). Library of Congress, LC-USF34-.",
     "Escaparate «Tattoo Artist» (1958). Library of Congress, Anthony Angel Collection.",
     "«Much tattooed sailor aboard the USS New Jersey» (1944). U.S. National Archives, NARA 520883.",
-    "Expediente de patente nº 464.801, S. F. O'Reilly (1891). U.S. National Archives, NARA 70664403.",
-    "«Tattoos depicted on Seamen's Protection Certificate Applications». Wikimedia Commons, dominio público.",
     "«Sailor tattoos - Hold Fast with swallows». Wikimedia Commons, dominio público."
   ]
 }

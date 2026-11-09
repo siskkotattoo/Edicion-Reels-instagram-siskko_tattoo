@@ -329,6 +329,13 @@ def render_segmento(c, i, tmp, hay_musica, borrador):
         entradas = ["-loop", "1", "-framerate", str(FPS), "-t", f"{dur:.3f}", "-i", str(png)]
         fv.append(filtro_encuadre(c.get("encuadre", "auto"), ancho, alto, c.get("foco"),
                                   float(c.get("acercar", 1.0))))
+    elif c.get("fondo"):  # tarjeta sobre foto desenfocada y oscurecida
+        png = tmp / f"fondo_{i:02d}.png"
+        foto_a_png(resolver(c["fondo"], Path(".")), png)
+        entradas = ["-loop", "1", "-framerate", str(FPS), "-t", f"{dur:.3f}", "-i", str(png)]
+        fv.append(f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                  f"gblur=sigma=18,eq=brightness=-0.28:contrast=0.9:saturation=0.5")
+        fv.append(filtro_zoom(0.06, dur))
     else:  # tarjeta de texto sobre negro
         entradas = ["-f", "lavfi", "-t", f"{dur:.3f}", "-i",
                     f"color=c={estilo.NEGRO.replace('#', '0x')}:s={W}x{H}:r={FPS}"]
@@ -337,7 +344,7 @@ def render_segmento(c, i, tmp, hay_musica, borrador):
             if c["tipo"] != "tarjeta" else None)
     if zoom:
         fv.append(zoom)
-    fv.append(filtro_color(c.get("color", True) and c["tipo"] != "tarjeta"))
+    fv.append(filtro_color(c.get("color", True) and (c["tipo"] != "tarjeta" or bool(c.get("fondo")))))
     fv.append(f"trim=duration={dur:.3f}")
 
     capas = graficos.Capas(primer_indice=1)

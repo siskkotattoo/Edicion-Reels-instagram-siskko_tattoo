@@ -227,17 +227,18 @@ def main():
         if "tarjeta" in e:
             clip.update(tarjeta=e["tarjeta"], subtexto=e.get("subtexto"),
                         muestras=e.get("muestras"))
+            if e.get("fondo"):
+                fondo = a.guion.parent / e["fondo"]
+                clip["fondo"] = str((fondo if fondo.exists() else Path(e["fondo"])).resolve())
         else:
             ruta = (a.guion.parent / e["archivo"]) if "archivo" in e else \
                 carpeta / "imagenes" / f"escena_{i:02d}.jpg"
             if "archivo" in e and not ruta.exists():
                 ruta = Path(e["archivo"])
             clip.update(foto=str(ruta.resolve()), zoom=e.get("zoom", 0.12 if i % 2 == 0 else -0.10))
-            for k in ("foco", "acercar", "encuadre"):
+            for k in ("foco", "acercar", "encuadre", "color"):
                 if k in e:
                     clip[k] = e[k]
-        if "color" in e:
-            clip["color"] = e["color"]
         if e.get("rotulo"):
             clip["texto"] = e["rotulo"]
         clips.append(clip)
