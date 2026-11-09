@@ -1,0 +1,26 @@
+{
+  "salida": "salida/realismo_retrato.mp4",
+  "titulo": "Realismo",
+  "subtitulo": "Retrato en negro",
+
+  "musica": "entrada/tema.mp3",
+  "musica_inicio": 12.5,
+  "musica_volumen": 0.75,
+  "sincronizar_ritmo": true,
+
+  "transicion": "rotar",
+  "duracion_transicion": 0.4,
+
+  "clips": [
+    {"tarjeta": "Antes", "duracion": 1.2, "transicion": "corte"},
+    {"foto": "entrada/diseno.jpg", "duracion": 2.2, "texto": "El diseño", "transicion": "flash"},
+    {"video": "entrada/IMG_0001.MOV", "inicio": 1.5, "fin": 14, "voz": true,
+     "cortar_silencios": true, "texto": "Primeros trazos", "transicion": "zoomin"},
+    {"video": "entrada/IMG_0002.MOV", "fin": 600, "velocidad": 40,
+     "texto": "4 horas en 15 segundos", "transicion": "fadeblack"},
+    {"tarjeta": "Después", "duracion": 1.2, "transicion": "flash"},
+    {"video": "entrada/IMG_0003.MOV", "inicio": 0, "fin": 6, "zoom": 0.08, "volumen": 0}
+  ],
+
+  "cierre": {"texto": "@siskko_tattoo", "subtexto": "Citas por DM"}
+}
