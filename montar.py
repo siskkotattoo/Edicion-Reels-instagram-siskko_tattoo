@@ -28,6 +28,8 @@ import audio
 import estilo
 import graficos
 import musica_generada
+import sfx
+import subtitulos
 
 W, H, FPS = estilo.ANCHO, estilo.ALTO, estilo.FPS
 EXT_FOTO = {".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp"}
@@ -106,7 +108,7 @@ def filtro_encuadre(modo, ancho, alto):
         modo = "llenar" if alto / ancho >= 1.5 else "relleno"
     if modo == "llenar":
         return (f"scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,"
-                f"crop={W}:{H}")
+                f"crop={W}:{H}:(iw-ow)/2:(ih-oh)*{estilo.ENCUADRE_ALTURA}")
     # Plano horizontal: imagen completa sobre su propia versión desenfocada.
     return (f"split[ea][eb];[ea]scale={W}:{H}:force_original_aspect_ratio=increase,"
             f"crop={W}:{H},gblur=sigma=40,eq=brightness=-0.12:saturation=0.7[efondo];"
@@ -114,16 +116,23 @@ def filtro_encuadre(modo, ancho, alto):
             f"[efondo][efrente]overlay=(W-w)/2:(H-h)/2")
 
 
-def filtro_zoom(zoom, duracion):
-    if not zoom:
+def filtro_zoom(zoom, duracion, saltos=()):
+    """Empuje lento de cámara + saltos de zoom en los cortes (plano/primer plano)."""
+    if not zoom and not saltos:
         return None
-    f = f"(1+{zoom}*t/{max(duracion, 0.1):.3f})"
+    f = f"1+{zoom or 0}*t/{max(duracion, 0.1):.3f}"
+    if saltos:
+        f += "+" + str(estilo.ZOOM_CORTE) + "*(" + "+".join(
+            f"between(t,{a:.3f},{b:.3f})" for a, b in saltos) + ")"
+    f = f"({f})"
     return (f"scale=w='trunc({W}*{f}/2)*2':h='trunc({H}*{f}/2)*2':eval=frame:flags=bicubic,"
-            f"crop={W}:{H}")
+            f"crop={W}:{H}:(iw-ow)/2:(ih-oh)*{estilo.ENCUADRE_ALTURA}")
 
 
 def filtro_color(con_color=True):
     pasos = ["format=gbrp", f"lut3d=file='{estilo.LUT}':interp=tetrahedral"] if con_color else []
+    if estilo.CLARIDAD:
+        pasos.append(f"unsharp=13:13:{estilo.CLARIDAD}:5:5:0")
     pasos += [f"unsharp=5:5:{estilo.NITIDEZ}:5:5:0", "format=yuv420p", "setsar=1"]
     return ",".join(pasos)
 
@@ -132,7 +141,33 @@ def filtro_color(con_color=True):
 # Planificación
 # --------------------------------------------------------------------------- #
 
-def planificar(proyecto, base):
+def tramos_de_palabras(palabras, duracion, pausa=estilo.SILENCIO_MIN,
+                       margen=estilo.MARGEN_SILENCIO):
+    """Tramos con habla a partir de las marcas de tiempo de cada palabra."""
+    tramos = []
+    for ini, fin, _ in palabras:
+        a, b = max(ini - margen, 0), min(fin + margen, duracion)
+        if tramos and a - tramos[-1][1] < pausa:
+            tramos[-1] = (tramos[-1][0], max(tramos[-1][1], b))
+        else:
+            tramos.append((a, b))
+    return tramos
+
+
+def mapear_palabras(palabras, tramos, velocidad):
+    """Pasa las palabras del tiempo original al tiempo del clip ya cortado."""
+    salida, acumulado = [], 0.0
+    for a, b in tramos:
+        for ini, fin, txt in palabras:
+            if a - 0.05 <= ini < b:
+                salida.append(((acumulado + ini - a) / velocidad,
+                               (acumulado + min(fin, b) - a) / velocidad, txt))
+        acumulado += b - a
+    return salida
+
+
+def planificar(proyecto, base, tmp):
+    con_subs = proyecto.get("subtitulos", estilo.SUBTITULOS)
     clips = []
     for c in proyecto["clips"]:
         c = dict(c)
@@ -144,10 +179,23 @@ def planificar(proyecto, base):
             c["inicio"] = float(c.get("inicio", 0))
             c["fin"] = min(float(c.get("fin", info["duracion"])), info["duracion"])
             c["velocidad"] = float(c.get("velocidad", 1))
+            largo = c["fin"] - c["inicio"]
+            c["palabras"] = []
+            if info["audio"] and c["velocidad"] <= 1.5 and (con_subs or c.get("cortar_silencios", True)):
+                recorte = tmp / f"audio_{len(clips):02d}.wav"
+                subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(c["inicio"]),
+                                "-t", str(largo), "-i", str(c["fuente"]), "-vn", str(recorte)],
+                               check=True)
+                print(f"  · transcribiendo {c['fuente'].name}…")
+                c["palabras"] = subtitulos.transcribir(recorte, tmp)
+            c.setdefault("voz", bool(c["palabras"]))
             if c.get("cortar_silencios", True) and info["audio"] and c["velocidad"] <= 1.5:
-                c["tramos"] = audio.tramos_con_sonido(c["fuente"], c["inicio"], c["fin"])
+                if c["palabras"]:
+                    c["tramos"] = tramos_de_palabras(c["palabras"], largo)
+                else:
+                    c["tramos"] = audio.tramos_con_sonido(c["fuente"], c["inicio"], c["fin"])
             else:
-                c["tramos"] = [(0.0, c["fin"] - c["inicio"])]
+                c["tramos"] = [(0.0, largo)]
             c.setdefault("zoom", estilo.ZOOM_VIDEO)
         elif "foto" in c:
             c["tipo"] = "foto"
@@ -250,6 +298,13 @@ def render_segmento(c, i, tmp, hay_musica, borrador):
         if v != 1:
             fv += [f"setpts=PTS/{v}", f"fps={FPS}"]
         fv.append(filtro_encuadre(c.get("encuadre", "auto"), info["ancho"], info["alto"]))
+        c["palabras_out"] = mapear_palabras(c.get("palabras", []), tramos, v)
+        if len(tramos) > 1:
+            limites, acc = [], 0.0
+            for a, b in tramos:
+                limites.append((acc / v, (acc + b - a) / v))
+                acc += b - a
+            c["saltos"] = [limites[j] for j in range(1, len(limites), 2)]
         if info["audio"] and v <= 1.5 and c.get("volumen", 1) > 0:
             vol = c.get("volumen", estilo.VOLUMEN_CLIP_CON_MUSICA if hay_musica and not c.get("voz") else 1.0)
             fa = []
@@ -269,7 +324,7 @@ def render_segmento(c, i, tmp, hay_musica, borrador):
         entradas = ["-f", "lavfi", "-t", f"{dur:.3f}", "-i",
                     f"color=c={estilo.NEGRO.replace('#', '0x')}:s={W}x{H}:r={FPS}"]
 
-    zoom = filtro_zoom(c.get("zoom"), dur) if c["tipo"] != "tarjeta" else None
+    zoom = filtro_zoom(c.get("zoom"), dur, c.get("saltos", ())) if c["tipo"] != "tarjeta" else None
     if zoom:
         fv.append(zoom)
     fv.append(filtro_color(c.get("color", True) and c["tipo"] != "tarjeta"))
@@ -352,7 +407,7 @@ def render_cierre(tmp, proyecto, borrador):
 # --------------------------------------------------------------------------- #
 
 def montar_final(segmentos, trans, proyecto, musica, musica_inicio, tmp, salida, borrador,
-                 idx_titulo=0):
+                 idx_titulo=0, palabras_seg=()):
     durs = [duracion_real(s) for s in segmentos]
     n = len(segmentos)
     entradas = []
@@ -384,9 +439,12 @@ def montar_final(segmentos, trans, proyecto, musica, musica_inicio, tmp, salida,
     inicio_cierre = cambios[-1] if tiene_cierre and cambios else total
 
     capas = graficos.Capas(primer_indice=n)
-    # Título de apertura.
+    gancho = proyecto.get("gancho")
+    # Título de apertura (si hay gancho, entra cuando el gancho se va).
     if proyecto.get("titulo"):
         t_tit = inicios[min(idx_titulo, n - 1)] + (0.15 if idx_titulo == 0 else 0.25)
+        if gancho:
+            t_tit = max(t_tit, estilo.GANCHO_DURACION + 0.1)
         v = graficos.titulo(capas, v, tmp, proyecto["titulo"], proyecto.get("subtitulo"),
                             inicio=t_tit)
     # Destellos rojo sangre en las transiciones "flash".
@@ -416,10 +474,33 @@ def montar_final(segmentos, trans, proyecto, musica, musica_inicio, tmp, salida,
     fin_marca = inicio_cierre - 0.2
     f.append(f"[{im}:v]format=rgba,fade=t=in:st=0.4:d=0.5:alpha=1,"
              f"fade=t=out:st={max(fin_marca - 0.3, 0):.3f}:d=0.3:alpha=1[marca]")
-    f.append(f"[vg][marca]overlay={estilo.MARCA_X}:{estilo.MARCA_Y}:eof_action=pass,"
+    # Subtítulos dinámicos + gancho (libass), por encima del grano.
+    palabras = []
+    for i, ps in enumerate(palabras_seg):
+        palabras += [(a_ + inicios[i], b_ + inicios[i], t_) for a_, b_, t_ in ps
+                     if a_ + inicios[i] < inicio_cierre]
+    subs = ""
+    if palabras or gancho:
+        ass = tmp / "subtitulos.ass"
+        destacar = list(estilo.DESTACAR) + list(proyecto.get("destacar", []))
+        subtitulos.escribir_ass(ass, palabras, destacar, gancho, fin_total=inicio_cierre)
+        subs = f"ass=filename='{ass}':fontsdir='{estilo.FUENTE.parent}',"
+    f.append(f"[vg][marca]overlay={estilo.MARCA_X}:{estilo.MARCA_Y}:eof_action=pass,{subs}"
              f"fade=t=in:st=0:d={estilo.FUNDIDO_ENTRADA}:color={estilo.NEGRO},"
              f"fade=t=out:st={total - estilo.FUNDIDO_SALIDA:.3f}:d={estilo.FUNDIDO_SALIDA}:color={estilo.NEGRO},"
              f"format=yuv420p[vout]")
+
+    # Efectos de sonido: whoosh en cada transición, impacto con el gancho.
+    if proyecto.get("sfx", estilo.SFX):
+        whooshes = [t for (tipo, _), t in zip(trans, cambios) if tipo != "corte"]
+        pista = tmp / "sfx.wav"
+        sfx.pista(pista, total, whooshes, [0.06] if gancho else [],
+                  estilo.SFX_WHOOSH, estilo.SFX_IMPACTO)
+        isfx = im + 1
+        entradas_extra += ["-i", str(pista)]
+        f.append(f"[{a}][{isfx}:a]amix=inputs=2:normalize=0:duration=first[conSfx]")
+        a = "conSfx"
+        im += 1
 
     # Audio: voz/ambiente + música con ducking.
     fin_a = total - estilo.FUNDIDO_SALIDA
@@ -459,16 +540,15 @@ def montar(proyecto, base=Path("."), borrador=False):
     if not estilo.LUT.exists():
         subprocess.run([sys.executable, str(estilo.RAIZ / "generar_lut.py")], check=True)
     t0 = time.time()
-    print("Planificando…")
-    clips = planificar(proyecto, base)
-    con_cierre = proyecto.get("cierre", {}) is not False
-    dur_cierre = float((proyecto.get("cierre") or {}).get("duracion", estilo.CIERRE_DURACION)) if con_cierre else 0
-    trans = transiciones(proyecto, len(clips) + (1 if con_cierre else 0))
-    if con_cierre:
-        trans[len(clips) - 1] = ("fadeblack", 0.4)
-
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
+        print("Planificando…")
+        clips = planificar(proyecto, base, tmp)
+        con_cierre = proyecto.get("cierre", {}) is not False
+        dur_cierre = float((proyecto.get("cierre") or {}).get("duracion", estilo.CIERRE_DURACION)) if con_cierre else 0
+        trans = transiciones(proyecto, len(clips) + (1 if con_cierre else 0))
+        if con_cierre:
+            trans[len(clips) - 1] = ("fadeblack", 0.4)
         # Música y golpes.
         musica = proyecto.get("musica")
         inicio_m = float(proyecto.get("musica_inicio", 0))
@@ -496,8 +576,14 @@ def montar(proyecto, base=Path("."), borrador=False):
         print("Montando…")
         salida = Path(proyecto.get("salida", "salida/reel_siskko.mp4"))
         idx_titulo = next((i for i, c in enumerate(clips) if c["tipo"] != "tarjeta"), 0)
+        palabras_seg = [c.get("palabras_out", []) for c in clips]
         total = montar_final(segmentos, trans, proyecto, musica, inicio_m, tmp, salida, borrador,
-                             idx_titulo)
+                             idx_titulo, palabras_seg)
+        if proyecto.get("portada", True):
+            portada = salida.with_name(salida.stem + "_portada.jpg")
+            graficos.portada(portada, segmentos[idx_titulo],
+                             proyecto.get("gancho") or proyecto.get("titulo") or "")
+            print(f"Portada: {portada}")
     print(f"Listo: {salida}  ({total:.1f}s, {time.time() - t0:.0f}s de render)")
     if total > 180:
         print("Aviso: Instagram limita los reels a 3 minutos.")
@@ -525,7 +611,8 @@ def proyecto_auto(archivos, a):
         clips.append(c)
     return {
         "salida": str(a.salida or Path("salida") / f"reel_{time.strftime('%Y%m%d_%H%M')}.mp4"),
-        "titulo": a.titulo, "subtitulo": a.subtitulo,
+        "gancho": a.gancho, "titulo": a.titulo, "subtitulo": a.subtitulo,
+        "destacar": a.destacar or [], "subtitulos": not a.sin_subtitulos, "sfx": not a.sin_sfx,
         "clips": clips, "transicion": "rotar",
         "musica": str(a.musica) if a.musica else ("generada" if not a.sin_musica else None),
         "sincronizar_ritmo": True,
@@ -537,6 +624,10 @@ def main():
     sub = ap.add_subparsers(dest="modo", required=True)
     pa = sub.add_parser("auto", help="monta automáticamente vídeos y fotos")
     pa.add_argument("archivos", nargs="+", type=Path)
+    pa.add_argument("--gancho", help="frase grande del primer segundo")
+    pa.add_argument("--destacar", nargs="*", help="palabras extra en rojo en los subtítulos")
+    pa.add_argument("--sin-subtitulos", action="store_true")
+    pa.add_argument("--sin-sfx", action="store_true")
     pa.add_argument("--titulo")
     pa.add_argument("--subtitulo")
     pa.add_argument("--musica", type=Path)

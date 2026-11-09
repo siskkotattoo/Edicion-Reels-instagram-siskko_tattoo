@@ -2,3 +2,4 @@ numpy
 pillow
 pillow-heif
 scipy
+faster-whisper

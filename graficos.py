@@ -160,3 +160,66 @@ def titulo(capas, base, tmp: Path, texto, subtitulo=None, inicio=0.15,
         base = capas.capa(base, tmp / "subtitulo.png", x + 4, e.TITULO_Y + th - 6,
                           inicio + 0.35, duracion - 0.35, desde="abajo")
     return base
+
+
+# --- Portada -----------------------------------------------------------------
+
+def portada(ruta, video, texto):
+    """Portada 1080x1920 para el feed: fotograma + texto grande en cajas rojas.
+
+    El feed de perfil recorta la portada a 3:4 por el centro, así que el texto
+    se coloca en la franja central.
+    """
+    import subprocess
+    import tempfile
+
+    from PIL import ImageEnhance
+
+    dur = float(subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+         str(video)], capture_output=True, text=True, check=True).stdout)
+    with tempfile.TemporaryDirectory() as td:
+        png = Path(td) / "f.png"
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{dur * 0.5:.2f}", "-i", str(video),
+                        "-frames:v", "1", str(png)], check=True)
+        img = Image.open(png).convert("RGB")
+    img = ImageEnhance.Contrast(img).enhance(1.12)
+    W_, H_ = img.size
+    # Degradado oscuro de abajo a arriba para que el texto respire.
+    sombra = Image.new("L", (1, H_))
+    for y in range(H_):
+        sombra.putpixel((0, y), int(170 * max(0, (y / H_ - 0.35) / 0.65) ** 1.4))
+    negro = Image.new("RGB", img.size, hex_rgb(estilo.NEGRO))
+    img = Image.composite(negro, img, sombra.resize(img.size))
+    d = ImageDraw.Draw(img)
+    if texto:
+        palabras, lineas, actual = texto.upper().split(), [], ""
+        for p in palabras:
+            if actual and len(actual) + 1 + len(p) > 12:
+                lineas.append(actual)
+                actual = p
+            else:
+                actual = f"{actual} {p}".strip()
+        lineas.append(actual)
+        tam = 104
+        fuente = ImageFont.truetype(str(estilo.FUENTE_TITULO), tam)
+        while max(fuente.getlength(l) for l in lineas) > W_ - 200 and tam > 50:
+            tam -= 6
+            fuente = ImageFont.truetype(str(estilo.FUENTE_TITULO), tam)
+        alto_l = int(tam * 1.32)
+        y = H_ // 2 + 120 - alto_l * len(lineas) // 2
+        for i, l in enumerate(lineas):
+            w = fuente.getlength(l)
+            x = (W_ - w) / 2
+            fondo = estilo.ROJO_SANGRE if i % 2 == 0 else estilo.BLANCO_ROTO
+            color = estilo.BLANCO_ROTO if i % 2 == 0 else estilo.NEGRO
+            d.rectangle([x - 26, y - 8, x + w + 26, y + alto_l - 14], fill=hex_rgb(fondo))
+            d.text((x, y - tam * 0.06), l, font=fuente, fill=hex_rgb(color))
+            y += alto_l
+    marca = ImageFont.truetype(str(estilo.FUENTE), 40)
+    t = estilo.USUARIO
+    w = marca.getlength(t)
+    d.text(((W_ - w) / 2, H_ // 2 + 560), t, font=marca, fill=hex_rgb(estilo.BLANCO_ROTO))
+    d.rectangle([(W_ - 120) / 2, H_ // 2 + 620, (W_ + 120) / 2, H_ // 2 + 626],
+                fill=hex_rgb(estilo.ROJO_SANGRE))
+    img.save(ruta, quality=92)

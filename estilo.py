@@ -23,18 +23,20 @@ AUDIO_LUFS = -14           # volumen estándar de Instagram
 LUT = RAIZ / "luts" / "siskko_dark_rojo.cube"
 VINETA = 0.55              # ángulo del vignette (rad); más alto = más oscuro
 GRANO = 7                  # grano de película (0 = sin grano)
-NITIDEZ = 0.45             # realce de la línea del tatuaje
+NITIDEZ = 0.5              # realce de la línea del tatuaje
+CLARIDAD = 0.35            # contraste local: da volumen al sombreado
 FUNDIDO_ENTRADA = 0.35     # segundos desde negro al empezar
 FUNDIDO_SALIDA = 0.6       # segundos a negro al terminar
 
+# Realismo ilustrativo: contrastes altos, negros densos, rojo como acento.
 LUT_PARAMS = dict(
-    exposicion=0.92,       # oscurece ligeramente la imagen
-    contraste=1.18,        # curva en S
-    negro_mate=0.025,      # negros levemente levantados (look cine)
-    techo_blancos=0.95,    # luces suavizadas
-    sat_rojos=1.15,        # rojos: se intensifican
-    sat_piel=0.80,         # tonos piel: algo apagados pero naturales
-    sat_resto=0.35,        # resto de colores: casi desaturados
+    exposicion=0.95,       # oscurece ligeramente la imagen
+    contraste=1.32,        # curva en S fuerte (alto contraste)
+    negro_mate=0.012,      # negros densos con un mínimo de detalle
+    techo_blancos=0.97,    # luces brillantes sin quemar
+    sat_rojos=1.2,         # rojos: se intensifican
+    sat_piel=0.78,         # tonos piel: algo apagados pero naturales
+    sat_resto=0.28,        # resto de colores: casi blanco y negro
     sombras_rojizas=0.035, # tinte rojo-negro en sombras
     luces_calidas=0.02,    # luces hacia blanco roto
 )
@@ -43,9 +45,11 @@ LUT_PARAMS = dict(
 # Cualquier transición de ffmpeg xfade (fadeblack, zoomin, slideup,
 # circleopen, dissolve, pixelize, ...) más dos propias:
 #   "flash" -> destello rojo sangre     "corte" -> corte seco
-TRANSICIONES = ["zoomin", "fadeblack", "flash", "slideup"]   # rotan en modo auto
-DURACION_TRANSICION = 0.4
+TRANSICIONES = ["zoomin", "flash", "slideup", "fadeblack"]   # rotan en modo auto
+DURACION_TRANSICION = 0.3
 ZOOM_VIDEO = 0.05          # empuje lento de cámara en los vídeos (5 %)
+ZOOM_CORTE = 0.14          # salto de zoom en cada corte de lo hablado (14 %)
+ENCUADRE_ALTURA = 0.42     # al recortar/zoom: 0 = arriba, 0.5 = centro (caras)
 ZOOM_FOTO = 0.10           # efecto Ken Burns en las fotos (10 %)
 DURACION_FOTO = 2.5
 
@@ -75,7 +79,29 @@ TITULO_TAMANO = 120
 TITULO_Y = 760
 TITULO_DURACION = 2.8
 ROTULO_TAMANO = 44
-ROTULO_Y = 1330
+ROTULO_Y = 330             # bajo la marca, para no chocar con los subtítulos
+
+# --- Subtítulos dinámicos y gancho -------------------------------------------
+SUBTITULOS = True
+MODELO_SUBTITULOS = "small"   # tiny/base/small/medium: más grande = más preciso y lento
+IDIOMA = "es"
+VOCABULARIO = ("Tatuaje, realismo ilustrativo, contraste, sombreado, degradado, "
+               "línea fina, tinta negra, blackwork, black and grey, piel, "
+               "cicatrización, sesión, diseño, siskko.")
+FUENTE_SUBTITULO = "Inter Display Black"   # nombre de familia para libass
+SUBTITULO_TAMANO = 84
+SUBTITULO_Y = 1290         # línea base de los subtítulos
+GANCHO_TAMANO = 92
+GANCHO_Y = 820
+GANCHO_DURACION = 2.2
+# Palabras que salen siempre en rojo sangre en los subtítulos.
+DESTACAR = ["realismo", "ilustrativo", "contraste", "contrastes", "sombras",
+            "negro", "tatuaje", "tinta", "error", "secreto", "nunca", "siempre"]
+
+# --- Efectos de sonido -------------------------------------------------------
+SFX = True
+SFX_WHOOSH = 0.35          # volumen del whoosh en transiciones
+SFX_IMPACTO = 0.55         # volumen del golpe al aparecer el gancho
 
 CIERRE_TEXTO = "@siskko_tattoo"
 CIERRE_SUBTEXTO = "CITAS POR DM"

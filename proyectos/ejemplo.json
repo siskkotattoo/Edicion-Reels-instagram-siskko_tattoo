@@ -1,6 +1,8 @@
 {
   "salida": "salida/realismo_retrato.mp4",
-  "titulo": "Realismo",
+  "gancho": "El error que arruina tu realismo",
+  "titulo": "Realismo ilustrativo",
+  "destacar": ["sombras", "luces"],
   "subtitulo": "Retrato en negro",
 
   "musica": "entrada/tema.mp3",
