@@ -132,7 +132,14 @@ def alinear(texto, palabras_whisper, ini, fin):
         pos = i - (prev if prev is not None else -1) - 1
         paso = (t1 - t0) / max(huecos, 1)
         tiempos[i] = (t0 + pos * paso, t0 + (pos + 1) * paso)
-    return [(t[0], t[1], w) for t, w in zip(tiempos, mostrar)]
+    # Garantiza tiempos crecientes (por si el emparejamiento se cruza).
+    salida, ultimo = [], ini
+    for t, w in zip(tiempos, mostrar):
+        t0 = max(t[0], ultimo)
+        t1 = max(t[1], t0 + 0.05)
+        salida.append((t0, t1, w))
+        ultimo = t0
+    return salida
 
 
 # --------------------------------------------------------------------------- #
@@ -217,6 +224,8 @@ def main():
         clip = {"foto": str((carpeta / "imagenes" / f"escena_{i:02d}.jpg").resolve()),
                 "duracion": round(dur, 3), "zoom": 0.12 if i % 2 == 0 else 0.08,
                 "transicion": e.get("transicion", estilo.TRANSICIONES[i % 2 * 2])}
+        if "color" in e:
+            clip["color"] = e["color"]
         if e.get("rotulo"):
             clip["texto"] = e["rotulo"]
         clips.append(clip)

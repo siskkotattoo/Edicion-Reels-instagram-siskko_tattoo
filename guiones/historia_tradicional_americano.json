@@ -1,8 +1,21 @@
 {
   "titulo_archivo": "historia_tradicional_americano",
   "gancho": "¿Por qué los marineros se tatuaban golondrinas?",
-  "destacar": ["golondrinas", "marineros", "tradicional", "americano", "máquina", "eléctrica",
-               "bold", "hold", "perdura", "rojo", "verde", "amarillo", "1891"],
+  "destacar": [
+    "golondrinas",
+    "marineros",
+    "tradicional",
+    "americano",
+    "máquina",
+    "eléctrica",
+    "bold",
+    "hold",
+    "perdura",
+    "rojo",
+    "verde",
+    "amarillo",
+    "1891"
+  ],
   "voz": "es_ES-sharvard-medium",
   "locutor": 0,
   "ritmo_voz": 0.9,
@@ -44,14 +57,14 @@
     {
       "voz": "En mil ochocientos noventa y uno, Samuel O Raili patentó en Nueva York la primera máquina eléctrica de tatuar.",
       "texto": "En 1891, Samuel O'Reilly patentó en Nueva York la primera máquina eléctrica de tatuar.",
-      "imagen": "antique brass electric tattoo machine with coils on an old wooden workbench, patent drawing papers, 1890s workshop",
+      "imagen": "close-up of a single antique hand-held electric tattoo machine with two copper coils and a needle tube, resting on a wooden table, shallow depth of field",
       "tipo": "foto",
       "rotulo": "1891 · Nueva York"
     },
     {
       "voz": "Décadas después, en Honolulu, Sailor Jerry definió el estilo.",
       "texto": "Décadas después, en Honolulu, Sailor Jerry definió el estilo.",
-      "imagen": "1940s tattoo parlor storefront on a street in Honolulu at night, neon sign, sailors in white uniforms waiting outside, palm trees",
+      "imagen": "1940s Honolulu harbor at night, sailors in white uniforms walking under palm trees, warm glowing lights, silhouettes, moody atmosphere",
       "tipo": "foto",
       "rotulo": "Honolulu · años 40"
     },
@@ -59,7 +72,8 @@
       "voz": "Líneas negras gruesas, sombras sólidas, y solo tres colores: rojo, verde y amarillo.",
       "texto": "Líneas negras gruesas, sombras sólidas, y solo tres colores: rojo, verde y amarillo.",
       "imagen": "a black panther crawling, and a red rose with green leaves",
-      "tipo": "flash"
+      "tipo": "flash",
+      "color": false
     },
     {
       "voz": "Su regla sigue viva: bold will hold. Lo que es fuerte, perdura.",

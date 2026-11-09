@@ -120,8 +120,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             f"Dialogue: 1,{_t(ini)},{_t(fin)},Gancho,,0,0,0,,"
             r"{\an5\pos(" f"{estilo.ANCHO // 2},{estilo.GANCHO_Y}" r")\fad(0,180)"
             r"\fscx60\fscy60\t(0,140,\fscx108\fscy108)\t(140,260,\fscx100\fscy100)}" + txt)
-    for g in agrupar(palabras):
+    grupos = agrupar(palabras)
+    for n_g, g in enumerate(grupos):
         g_ini, g_fin = g[0][0], g[-1][1] + 0.25
+        if n_g + 1 < len(grupos):   # nunca se pisa con el grupo siguiente
+            g_fin = min(g_fin, grupos[n_g + 1][0][0])
         for k, (w_ini, w_fin, _) in enumerate(g):
             ini = g_ini if k == 0 else w_ini
             fin = g[k + 1][0] if k + 1 < len(g) else g_fin
