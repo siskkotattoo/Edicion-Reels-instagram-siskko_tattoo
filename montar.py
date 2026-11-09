@@ -479,6 +479,12 @@ def montar_final(segmentos, trans, proyecto, musica, musica_inicio, tmp, salida,
     for i, ps in enumerate(palabras_seg):
         palabras += [(a_ + inicios[i], b_ + inicios[i], t_) for a_, b_, t_ in ps
                      if a_ + inicios[i] < inicio_cierre]
+    loc = proyecto.get("locucion")
+    if loc:
+        ini_loc = float(loc.get("inicio", 0))
+        palabras += [(p[0] + ini_loc, p[1] + ini_loc, p[2]) for p in loc.get("palabras", [])]
+    if gancho:   # mientras se ve el gancho no se duplica el texto abajo
+        palabras = [p for p in palabras if p[0] >= estilo.GANCHO_DURACION - 0.05]
     subs = ""
     if palabras or gancho:
         ass = tmp / "subtitulos.ass"
@@ -489,6 +495,17 @@ def montar_final(segmentos, trans, proyecto, musica, musica_inicio, tmp, salida,
              f"fade=t=in:st=0:d={estilo.FUNDIDO_ENTRADA}:color={estilo.NEGRO},"
              f"fade=t=out:st={total - estilo.FUNDIDO_SALIDA:.3f}:d={estilo.FUNDIDO_SALIDA}:color={estilo.NEGRO},"
              f"format=yuv420p[vout]")
+
+    # Locución en off (voz IA o grabada aparte).
+    if loc:
+        iloc = im + 1
+        entradas_extra += ["-i", str(loc["audio"])]
+        ms = int(float(loc.get("inicio", 0)) * 1000)
+        f.append(f"[{iloc}:a]aresample=48000,aformat=channel_layouts=stereo,"
+                 f"adelay={ms}|{ms},apad,atrim=0:{total:.3f}[loc]")
+        f.append(f"[{a}][loc]amix=inputs=2:normalize=0:duration=first[conLoc]")
+        a = "conLoc"
+        im += 1
 
     # Efectos de sonido: whoosh en cada transición, impacto con el gancho.
     if proyecto.get("sfx", estilo.SFX):

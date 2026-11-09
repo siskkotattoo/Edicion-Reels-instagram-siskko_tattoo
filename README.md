@@ -76,6 +76,30 @@ JSON. La `salida` es relativa a la carpeta actual.
 El modelo de transcripción (~460 MB) se descarga de huggingface.co la primera vez;
 el entorno de nube `edicion-reels-siskko` ya tiene ese acceso permitido.
 
+## Reels 100 % IA (sin grabar nada)
+
+Escribe un guion en `guiones/` (ver
+[`guiones/historia_tradicional_americano.json`](guiones/historia_tradicional_americano.json))
+y el sistema hace el resto: voz IA, imágenes IA animadas, subtítulos, música,
+efectos, gancho y cierre.
+
+```bash
+pip install -r requirements-ia.txt            # una vez (~3 GB)
+python crear_reel_ia.py guiones/historia_tradicional_americano.json
+python crear_reel_ia.py guiones/x.json --rehacer-imagenes 3 5   # regenera escenas
+```
+
+Cada escena tiene `voz` (lo que se pronuncia: números en letra, nombres
+escritos como suenan), `texto` (lo que sale en subtítulos), `imagen` (descripción
+en inglés), `tipo` (`flash` = ilustración tradicional, `foto` = foto de época) y
+opcionalmente `rotulo` y `transicion`. Todo queda en `salida/<nombre>/`; las
+imágenes se reutilizan al volver a montar.
+
+- **Voz**: Piper (neuronal, local) — `es_ES-sharvard-medium`, locutor masculino.
+- **Imágenes**: SD-Turbo (local en CPU, ~35 s por imagen) animadas con zoom y
+  transiciones. Para vídeo generado por IA de verdad (Runway, Kling, Veo…) hace
+  falta una clave de API de ese servicio.
+
 ## Ajustar el estilo
 
 Todo en [`estilo.py`](estilo.py): colores, viñeta, grano, zoom, transiciones,
@@ -100,6 +124,7 @@ biblioteca de Instagram.
 - `audio.py` — detección de silencios y de tempo/golpes
 - `subtitulos.py` — transcripción y subtítulos animados (ASS)
 - `sfx.py` — efectos de sonido
+- `crear_reel_ia.py` — reels 100 % IA desde un guion
 - `musica_generada.py` — base musical oscura sin derechos
 - `generar_lut.py` — genera el LUT de color
 - `estilo.py` — guía de estilo

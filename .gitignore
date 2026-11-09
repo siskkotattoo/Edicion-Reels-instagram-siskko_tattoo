@@ -6,3 +6,4 @@ salida/
 *.mp3
 *.m4a
 __pycache__/
+modelos/

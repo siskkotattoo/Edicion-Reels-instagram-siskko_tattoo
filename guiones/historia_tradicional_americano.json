@@ -1,0 +1,85 @@
+{
+  "titulo_archivo": "historia_tradicional_americano",
+  "gancho": "¿Por qué los marineros se tatuaban golondrinas?",
+  "destacar": ["golondrinas", "marineros", "tradicional", "americano", "máquina", "eléctrica",
+               "bold", "hold", "perdura", "rojo", "verde", "amarillo", "1891"],
+  "voz": "es_ES-sharvard-medium",
+  "locutor": 0,
+  "ritmo_voz": 0.9,
+  "musica": "generada",
+  "estilo_imagen": "american traditional tattoo flash art, bold thick black outlines, solid black shading, limited palette of red green and yellow, aged cream paper, vintage 1940s, clean centered composition, high contrast",
+  "estilo_foto": "vintage photograph, high contrast black and white with warm sepia, film grain, dramatic light, documentary",
+  "escenas": [
+    {
+      "voz": "¿Sabes por qué los marineros se tatuaban golondrinas?",
+      "texto": "¿Sabes por qué los marineros se tatuaban golondrinas?",
+      "imagen": "a single swallow bird in flight carrying a ribbon banner",
+      "tipo": "flash"
+    },
+    {
+      "voz": "Así nació el tatuaje tradicional americano.",
+      "texto": "Así nació el tatuaje tradicional americano.",
+      "imagen": "a full sheet of classic tattoo flash designs, anchors, roses, swallows, hearts, daggers, pinned on a wooden wall",
+      "tipo": "flash"
+    },
+    {
+      "voz": "En el siglo diecinueve, los marineros volvían de cada viaje con la piel convertida en un diario.",
+      "texto": "En el siglo XIX, los marineros volvían de cada viaje con la piel convertida en un diario.",
+      "imagen": "19th century sailor on the deck of a tall wooden sailing ship, rolled sleeves, tattooed forearms, ropes and sails, ocean",
+      "tipo": "foto"
+    },
+    {
+      "voz": "Según la tradición, una golondrina por cada cinco mil millas navegadas.",
+      "texto": "Según la tradición, una golondrina por cada 5.000 millas navegadas.",
+      "imagen": "two swallows facing each other around a nautical compass rose",
+      "tipo": "flash"
+    },
+    {
+      "voz": "Y un ancla, por cruzar el Atlántico.",
+      "texto": "Y un ancla, por cruzar el Atlántico.",
+      "imagen": "a ship anchor wrapped with rope and a red rose",
+      "tipo": "flash",
+      "transicion": "flash"
+    },
+    {
+      "voz": "En mil ochocientos noventa y uno, Samuel O Raili patentó en Nueva York la primera máquina eléctrica de tatuar.",
+      "texto": "En 1891, Samuel O'Reilly patentó en Nueva York la primera máquina eléctrica de tatuar.",
+      "imagen": "antique brass electric tattoo machine with coils on an old wooden workbench, patent drawing papers, 1890s workshop",
+      "tipo": "foto",
+      "rotulo": "1891 · Nueva York"
+    },
+    {
+      "voz": "Décadas después, en Honolulu, Sailor Jerry definió el estilo.",
+      "texto": "Décadas después, en Honolulu, Sailor Jerry definió el estilo.",
+      "imagen": "1940s tattoo parlor storefront on a street in Honolulu at night, neon sign, sailors in white uniforms waiting outside, palm trees",
+      "tipo": "foto",
+      "rotulo": "Honolulu · años 40"
+    },
+    {
+      "voz": "Líneas negras gruesas, sombras sólidas, y solo tres colores: rojo, verde y amarillo.",
+      "texto": "Líneas negras gruesas, sombras sólidas, y solo tres colores: rojo, verde y amarillo.",
+      "imagen": "a black panther crawling, and a red rose with green leaves",
+      "tipo": "flash"
+    },
+    {
+      "voz": "Su regla sigue viva: bold will hold. Lo que es fuerte, perdura.",
+      "texto": "Su regla sigue viva: bold will hold. Lo que es fuerte, perdura.",
+      "imagen": "a bald eagle with spread wings above a banner, sun rays behind",
+      "tipo": "flash",
+      "rotulo": "Bold will hold",
+      "transicion": "flash"
+    },
+    {
+      "voz": "Por eso un tradicional se lee a diez metros, y aguanta toda una vida.",
+      "texto": "Por eso un tradicional se lee a diez metros, y aguanta toda una vida.",
+      "imagen": "close-up of an old man's weathered forearm with a faded traditional tattoo of a rose and a heart, natural light",
+      "tipo": "foto"
+    },
+    {
+      "voz": "Sígueme para más historia del tatuaje.",
+      "texto": "Sígueme para más historia del tatuaje.",
+      "imagen": "a dagger through a heart with a banner, and a swallow",
+      "tipo": "flash"
+    }
+  ]
+}
