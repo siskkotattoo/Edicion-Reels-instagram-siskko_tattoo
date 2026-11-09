@@ -1,0 +1,8 @@
+entrada/
+salida/
+*.mov
+*.MOV
+*.mp4
+*.mp3
+*.m4a
+__pycache__/
