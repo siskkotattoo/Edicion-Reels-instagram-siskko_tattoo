@@ -203,8 +203,9 @@ def main():
         palabras += alinear(e["texto"], pw, inicios[i], inicios[i] + duraciones[i])
 
     # 3) Imágenes IA.
-    print("Imágenes IA…")
     for i, e in enumerate(escenas):
+        if "imagen" not in e:          # foto de archivo o tarjeta tipográfica
+            continue
         ruta = carpeta / "imagenes" / f"escena_{i:02d}.jpg"
         rehacer = a.rehacer_imagenes is not None and (not a.rehacer_imagenes or i + 1 in a.rehacer_imagenes)
         if ruta.exists() and not rehacer:
@@ -221,9 +222,20 @@ def main():
             dur = offsets[i + 1] - offsets[i] + T
         else:
             dur = INICIO_VOZ + fin_voz + 0.7 - offsets[i]
-        clip = {"foto": str((carpeta / "imagenes" / f"escena_{i:02d}.jpg").resolve()),
-                "duracion": round(dur, 3), "zoom": 0.12 if i % 2 == 0 else 0.08,
+        clip = {"duracion": round(dur, 3),
                 "transicion": e.get("transicion", estilo.TRANSICIONES[i % 2 * 2])}
+        if "tarjeta" in e:
+            clip.update(tarjeta=e["tarjeta"], subtexto=e.get("subtexto"),
+                        muestras=e.get("muestras"))
+        else:
+            ruta = (a.guion.parent / e["archivo"]) if "archivo" in e else \
+                carpeta / "imagenes" / f"escena_{i:02d}.jpg"
+            if "archivo" in e and not ruta.exists():
+                ruta = Path(e["archivo"])
+            clip.update(foto=str(ruta.resolve()), zoom=e.get("zoom", 0.12 if i % 2 == 0 else -0.10))
+            for k in ("foco", "acercar", "encuadre"):
+                if k in e:
+                    clip[k] = e[k]
         if "color" in e:
             clip["color"] = e["color"]
         if e.get("rotulo"):

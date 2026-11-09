@@ -103,12 +103,15 @@ FILTRO_HDR = ("zscale=t=linear:npl=203,format=gbrpf32le,zscale=p=bt709,"
               "tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p")
 
 
-def filtro_encuadre(modo, ancho, alto):
+def filtro_encuadre(modo, ancho, alto, foco=None, acercar=1.0):
+    """Encuadre 9:16. foco=[x, y] (0-1) elige qué parte de la foto queda al
+    recortar; acercar>1 entra más cerca del detalle."""
+    fx, fy = foco or (0.5, estilo.ENCUADRE_ALTURA)
     if modo == "auto":
-        modo = "llenar" if alto / ancho >= 1.5 else "relleno"
+        modo = "llenar" if (alto / ancho >= 1.5 or foco) else "relleno"
     if modo == "llenar":
-        return (f"scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,"
-                f"crop={W}:{H}:(iw-ow)/2:(ih-oh)*{estilo.ENCUADRE_ALTURA}")
+        return (f"scale={int(W * acercar)}:{int(H * acercar)}:force_original_aspect_ratio=increase:"
+                f"flags=lanczos,crop={W}:{H}:(iw-ow)*{fx}:(ih-oh)*{fy}")
     # Plano horizontal: imagen completa sobre su propia versión desenfocada.
     return (f"split[ea][eb];[ea]scale={W}:{H}:force_original_aspect_ratio=increase,"
             f"crop={W}:{H},gblur=sigma=40,eq=brightness=-0.12:saturation=0.7[efondo];"
@@ -116,17 +119,22 @@ def filtro_encuadre(modo, ancho, alto):
             f"[efondo][efrente]overlay=(W-w)/2:(H-h)/2")
 
 
-def filtro_zoom(zoom, duracion, saltos=()):
-    """Empuje lento de cámara + saltos de zoom en los cortes (plano/primer plano)."""
+def filtro_zoom(zoom, duracion, saltos=(), foco=None):
+    """Empuje lento de cámara (zoom<0 = alejarse) + saltos de zoom en los cortes."""
     if not zoom and not saltos:
         return None
-    f = f"1+{zoom or 0}*t/{max(duracion, 0.1):.3f}"
+    fx, fy = foco or (0.5, estilo.ENCUADRE_ALTURA)
+    d = max(duracion, 0.1)
+    if (zoom or 0) >= 0:
+        f = f"1+{zoom or 0}*t/{d:.3f}"
+    else:
+        f = f"1+{-zoom}*(1-t/{d:.3f})"
     if saltos:
         f += "+" + str(estilo.ZOOM_CORTE) + "*(" + "+".join(
             f"between(t,{a:.3f},{b:.3f})" for a, b in saltos) + ")"
     f = f"({f})"
     return (f"scale=w='trunc({W}*{f}/2)*2':h='trunc({H}*{f}/2)*2':eval=frame:flags=bicubic,"
-            f"crop={W}:{H}:(iw-ow)/2:(ih-oh)*{estilo.ENCUADRE_ALTURA}")
+            f"crop={W}:{H}:(iw-ow)*{fx}:(ih-oh)*{fy}")
 
 
 def filtro_color(con_color=True):
@@ -319,12 +327,14 @@ def render_segmento(c, i, tmp, hay_musica, borrador):
         png = tmp / f"foto_{i:02d}.png"
         ancho, alto = foto_a_png(c["fuente"], png)
         entradas = ["-loop", "1", "-framerate", str(FPS), "-t", f"{dur:.3f}", "-i", str(png)]
-        fv.append(filtro_encuadre(c.get("encuadre", "auto"), ancho, alto))
+        fv.append(filtro_encuadre(c.get("encuadre", "auto"), ancho, alto, c.get("foco"),
+                                  float(c.get("acercar", 1.0))))
     else:  # tarjeta de texto sobre negro
         entradas = ["-f", "lavfi", "-t", f"{dur:.3f}", "-i",
                     f"color=c={estilo.NEGRO.replace('#', '0x')}:s={W}x{H}:r={FPS}"]
 
-    zoom = filtro_zoom(c.get("zoom"), dur, c.get("saltos", ())) if c["tipo"] != "tarjeta" else None
+    zoom = (filtro_zoom(c.get("zoom"), dur, c.get("saltos", ()), c.get("foco"))
+            if c["tipo"] != "tarjeta" else None)
     if zoom:
         fv.append(zoom)
     fv.append(filtro_color(c.get("color", True) and c["tipo"] != "tarjeta"))
@@ -335,9 +345,9 @@ def render_segmento(c, i, tmp, hay_musica, borrador):
     etiqueta = "v0"
     if c["tipo"] == "tarjeta":
         png = tmp / f"tarjeta_{i:02d}.png"
-        graficos.texto_png(png, c["tarjeta"].upper(), estilo.FUENTE_TITULO, 96, esp_rel=0.03)
-        etiqueta = capas.capa(etiqueta, png, "(W-w)/2", "(H-h)/2", 0.05, dur - 0.05,
-                              desde="abajo", dur_mov=0.5)
+        graficos.tarjeta_png(png, c["tarjeta"], c.get("subtexto"), c.get("muestras"))
+        etiqueta = capas.capa(etiqueta, png, 0, 0, 0.0, dur, desde="abajo", dur_mov=0.5,
+                              fundido_in=0.2, fundido_out=0.15)
     if c.get("texto"):
         png = tmp / f"rotulo_{i:02d}.png"
         graficos.rotulo_png(png, c["texto"])

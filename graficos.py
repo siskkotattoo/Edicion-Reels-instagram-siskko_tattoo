@@ -223,3 +223,64 @@ def portada(ruta, video, texto):
     d.rectangle([(W_ - 120) / 2, H_ // 2 + 620, (W_ + 120) / 2, H_ // 2 + 626],
                 fill=hex_rgb(estilo.ROJO_SANGRE))
     img.save(ruta, quality=92)
+
+
+# --- Tarjetas tipográficas ---------------------------------------------------
+
+def tarjeta_png(ruta, texto, subtexto=None, muestras=None):
+    """Lienzo transparente 1080x1920 con tipografía grande de marca.
+
+    texto: líneas separadas por "|"; las palabras entre *asteriscos* van en
+    rojo sangre. subtexto: línea pequeña espaciada. muestras: lista de
+    colores HEX que se dibujan como círculos (p. ej. la paleta tradicional).
+    """
+    W_, H_ = estilo.ANCHO, estilo.ALTO
+    img = Image.new("RGBA", (W_, H_))
+    d = ImageDraw.Draw(img)
+    lineas = [l.strip() for l in texto.upper().split("|")]
+    tam = 150
+    def medir(t, f):
+        return f.getlength(t.replace("*", ""))
+    while True:
+        f = ImageFont.truetype(str(estilo.FUENTE_TITULO), tam)
+        if max(medir(l, f) for l in lineas) <= W_ - 150 or tam <= 60:
+            break
+        tam -= 6
+    alto_l = int(tam * 1.05)
+    alto_total = alto_l * len(lineas) + (90 if subtexto else 0) + (190 if muestras else 0)
+    y = (H_ - alto_total) // 2 - 60
+    for l in lineas:
+        x = (W_ - medir(l, f)) / 2
+        rojo = False
+        for trozo in l.split("*"):
+            if trozo:
+                col = hex_rgb(estilo.ROJO_SANGRE if rojo else estilo.BLANCO_ROTO)
+                d.text((x + 4, y + 5), trozo, font=f, fill=(0, 0, 0, 160))
+                d.text((x, y), trozo, font=f, fill=col + (255,))
+                x += f.getlength(trozo)
+            rojo = not rojo
+        y += alto_l
+    y += 34
+    d.rectangle([(W_ - 160) / 2, y, (W_ + 160) / 2, y + 9], fill=hex_rgb(estilo.ROJO_SANGRE) + (255,))
+    y += 40
+    if subtexto:
+        st = subtexto.upper()
+        tam_s, esp = 44, 10
+        while True:
+            fs = ImageFont.truetype(str(estilo.FUENTE), tam_s)
+            ancho = sum(fs.getlength(c) for c in st) + esp * (len(st) - 1)
+            if ancho <= W_ - 160 or tam_s <= 26:
+                break
+            tam_s -= 2
+            esp = max(4, round(tam_s * 0.2))
+        _texto(d, ((W_ - ancho) / 2, y), st, fs, hex_rgb(estilo.BLANCO_ROTO) + (230,), esp)
+        y += 90
+    if muestras:
+        r, sep = 62, 46
+        total = len(muestras) * 2 * r + (len(muestras) - 1) * sep
+        x = (W_ - total) / 2
+        for c in muestras:
+            d.ellipse([x, y + 20, x + 2 * r, y + 20 + 2 * r], fill=hex_rgb(c) + (255,),
+                      outline=hex_rgb(estilo.BLANCO_ROTO) + (255,), width=5)
+            x += 2 * r + sep
+    img.save(ruta)
