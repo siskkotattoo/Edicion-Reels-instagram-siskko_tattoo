@@ -1,9 +1,26 @@
 {
   "titulo_archivo": "historia_tradicional_americano",
   "gancho": "¿Por qué los marineros se tatuaban golondrinas?",
-  "destacar": ["golondrinas", "marineros", "tradicional", "americano", "diario", "identificarlos",
-               "máquina", "eléctrica", "bold", "hold", "perdura", "negro", "rojo", "verde",
-               "amarillo", "1891", "honolulu", "vida"],
+  "destacar": [
+    "golondrinas",
+    "marineros",
+    "tradicional",
+    "americano",
+    "diario",
+    "identificarlos",
+    "máquina",
+    "eléctrica",
+    "bold",
+    "hold",
+    "perdura",
+    "negro",
+    "rojo",
+    "verde",
+    "amarillo",
+    "1891",
+    "honolulu",
+    "vida"
+  ],
   "voz": "es_ES-sharvard-medium",
   "locutor": 0,
   "ritmo_voz": 0.9,
@@ -13,20 +30,32 @@
       "voz": "¿Sabes por qué los marineros se tatuaban golondrinas?",
       "texto": "¿Sabes por qué los marineros se tatuaban golondrinas?",
       "archivo": "../salida/historia_tradicional_americano/archivo/hold_fast_golondrinas.jpg",
-      "foco": [0.5, 0.5], "zoom": 0.10
+      "foco": [
+        0.5,
+        0.5
+      ],
+      "zoom": 0.1
     },
     {
       "voz": "Así nació el tatuaje tradicional americano.",
       "texto": "Así nació el tatuaje tradicional americano.",
       "archivo": "../salida/historia_tradicional_americano/archivo/1944_uss_new_jersey.jpg",
-      "foco": [0.5, 0.3], "zoom": -0.12,
+      "foco": [
+        0.42,
+        0.4
+      ],
+      "zoom": -0.12,
       "rotulo": "USS New Jersey · 1944"
     },
     {
       "voz": "En el siglo diecinueve, los marineros volvían de cada viaje con la piel convertida en un diario.",
       "texto": "En el siglo XIX, los marineros volvían de cada viaje con la piel convertida en un diario.",
       "archivo": "../salida/historia_tradicional_americano/archivo/1889_profesor_tatuaje.jpg",
-      "foco": [0.5, 0.45], "zoom": 0.10,
+      "foco": [
+        0.5,
+        0.45
+      ],
+      "zoom": 0.1,
       "rotulo": "Nueva York · 1889"
     },
     {
@@ -39,62 +68,95 @@
     {
       "voz": "Según la tradición, una golondrina por cada cinco mil millas navegadas.",
       "texto": "Según la tradición, una golondrina por cada 5.000 millas navegadas.",
-      "tarjeta": "*5.000*|millas", "subtexto": "= una golondrina"
+      "tarjeta": "*5.000*|millas",
+      "subtexto": "= una golondrina"
     },
     {
       "voz": "Y un ancla, por cruzar el Atlántico.",
       "texto": "Y un ancla, por cruzar el Atlántico.",
-      "tarjeta": "*Ancla*", "subtexto": "= cruzar el Atlántico",
+      "tarjeta": "*Ancla*",
+      "subtexto": "= cruzar el Atlántico",
       "transicion": "flash"
     },
     {
       "voz": "En mil ochocientos noventa y uno, Samuel O Raili patentó en Nueva York la primera máquina eléctrica de tatuar del país.",
       "texto": "En 1891, Samuel O'Reilly patentó en Nueva York la primera máquina eléctrica de tatuar del país.",
       "archivo": "../salida/historia_tradicional_americano/archivo/1891_patente_oreilly.jpg",
-      "foco": [0.5, 0.4], "zoom": 0.12,
+      "foco": [
+        0.5,
+        0.4
+      ],
+      "zoom": 0.12,
       "rotulo": "Patente nº 464.801 · 1891"
     },
     {
       "voz": "Décadas después, en Honolulu, Sailor Jerry llevó el estilo a otro nivel.",
       "texto": "Décadas después, en Honolulu, Sailor Jerry llevó el estilo a otro nivel.",
-      "tarjeta": "Sailor|*Jerry*", "subtexto": "Honolulu · Hotel Street"
+      "tarjeta": "Sailor|*Jerry*",
+      "subtexto": "Honolulu · Hotel Street"
     },
     {
       "voz": "Líneas negras gruesas, sombras sólidas,",
       "texto": "Líneas negras gruesas, sombras sólidas,",
       "archivo": "../salida/historia_tradicional_americano/archivo/1944_uss_new_jersey.jpg",
-      "foco": [0.5, 0.55], "acercar": 1.6, "zoom": 0.08
+      "foco": [
+        0.12,
+        0.62
+      ],
+      "acercar": 1.7,
+      "zoom": 0.08
     },
     {
       "voz": "y una paleta corta: negro, rojo, verde y amarillo.",
       "texto": "y una paleta corta: negro, rojo, verde y amarillo.",
-      "tarjeta": "Paleta|*corta*", "subtexto": "negro · rojo · verde · amarillo",
-      "muestras": ["#111111", "#B3001B", "#2F6B2F", "#E2B419"]
+      "tarjeta": "Paleta|*corta*",
+      "subtexto": "negro · rojo · verde · amarillo",
+      "muestras": [
+        "#111111",
+        "#B3001B",
+        "#2F6B2F",
+        "#E2B419"
+      ]
     },
     {
       "voz": "En los años cuarenta había estudios hasta en caravanas, junto a los cuarteles.",
       "texto": "En los años 40 había estudios hasta en caravanas, junto a los cuarteles.",
       "archivo": "../salida/historia_tradicional_americano/archivo/1940_caravana_tattoo_rose.jpg",
-      "foco": [0.36, 0.6], "acercar": 1.35, "zoom": -0.10,
+      "foco": [
+        0.36,
+        0.6
+      ],
+      "acercar": 1.35,
+      "zoom": -0.1,
       "rotulo": "Luisiana · 1940"
     },
     {
       "voz": "La regla del tradicional sigue viva: bold will hold. Lo que es fuerte, perdura.",
       "texto": "La regla del tradicional sigue viva: bold will hold. Lo que es fuerte, perdura.",
-      "tarjeta": "*Bold*|will|*hold*", "subtexto": "lo que es fuerte, perdura",
+      "tarjeta": "*Bold*|will|*hold*",
+      "subtexto": "lo que es fuerte, perdura",
       "transicion": "flash"
     },
     {
       "voz": "Por eso un tradicional se lee a diez metros, y aguanta toda una vida.",
       "texto": "Por eso un tradicional se lee a diez metros, y aguanta toda una vida.",
       "archivo": "../salida/historia_tradicional_americano/archivo/1958_tattoo_artist.jpg",
-      "foco": [0.55, 0.5], "zoom": 0.10
+      "foco": [
+        0.55,
+        0.5
+      ],
+      "zoom": 0.1
     },
     {
       "voz": "Sígueme para más historia del tatuaje.",
       "texto": "Sígueme para más historia del tatuaje.",
       "archivo": "../salida/historia_tradicional_americano/archivo/1958_tattoo_artist.jpg",
-      "foco": [0.5, 0.15], "acercar": 1.25, "zoom": -0.08
+      "foco": [
+        0.5,
+        0.15
+      ],
+      "acercar": 1.25,
+      "zoom": -0.08
     }
   ],
   "fuentes": [
